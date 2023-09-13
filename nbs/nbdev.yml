@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "extract_keywords"
+  site-url: "https://anuroop18.github.io/extract_keywords"
+  description: "A library to extract keywords from some text"
+  repo-branch: main
+  repo-url: "https://github.com/anuroop18/extract_keywords"
