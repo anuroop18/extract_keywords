@@ -6,7 +6,6 @@ __all__ = ['read_in_text', 'is_word_in_range', 'remove_singular_words', 'extract
 # %% ../nbs/00_core.ipynb 3
 import pandas as pd
 import numpy as np
-import gradio as gr
 from sentence_transformers import SentenceTransformer
 from keybert import KeyBERT
 from keyphrase_vectorizers import KeyphraseCountVectorizer
