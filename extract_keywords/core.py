@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['read_in_text', 'is_word_in_range', 'remove_singular_words', 'word_contains_numbers',
-           'remove_duplicates_preserve_order', 'split_compound_words', 'generate_keywords']
+           'remove_duplicates_preserve_order', 'split_compound_words', 'contains_only_alphabets', 'generate_keywords']
 
 # %% ../nbs/00_core.ipynb 3
 import pandas as pd
@@ -11,6 +11,7 @@ from sentence_transformers import SentenceTransformer
 from keybert import KeyBERT
 from keyphrase_vectorizers import KeyphraseCountVectorizer
 from functools import partial
+import re
 
 # %% ../nbs/00_core.ipynb 4
 def read_in_text(file_path:str): # path of text file
@@ -63,18 +64,30 @@ def split_compound_words(input_list:list): # list of words
     return result
 
 # %% ../nbs/00_core.ipynb 23
+def contains_only_alphabets(input_string:str):
+    "returns False if string contains anything other than alphabets"
+    # Define the regular expression pattern to match anything other than alphabets
+    pattern = r'[^a-zA-Z]'
+    
+    # Search for the pattern in the input string
+    if re.search(pattern, input_string):return False
+    else:return True
+    
+
+# %% ../nbs/00_core.ipynb 25
 def generate_keywords(text:str, # input text
                       max_len:int, # maximum length of word
                      n:int=10, # number of keywords
                      min_len:int=3, # minimum length of word
                       compound_words=True, # include combination of words
-                    keywords_with_numbers=True): # include those keywords that contain number
-    "Extract n keywords from text in range (min_len, max_len) both inclusive"
+                    only_alphabets=True): # include those keywords that contain alphabets only
+    "Extract n keywords from text in range (min_len, max_len) both inclusive. if `only_alphabets` is True, `compound_words` is False"
+    if only_alphabets: compound_words=False
     kw_extractor = KeyBERT('valurank/MiniLM-L6-Keyword-Extraction')
     keywords = kw_extractor.extract_keywords(text, vectorizer=KeyphraseCountVectorizer(), stop_words=None, top_n=n*2)
     keywords = [i for i,j in keywords] #removing confidence score
     if compound_words is False: keywords = split_compound_words(keywords) #removing compound words
-    if keywords_with_numbers is False: keywords = [word for word in keywords if not word_contains_numbers(word)] #removing keywords with numbers
+    if only_alphabets: keywords = [word for word in keywords if contains_only_alphabets(word)] #removing keywords with numbers and special characters
     keywords = remove_singular_words(keywords) #removing one of singluar/plural combination
     keywords = [word for word in keywords if is_word_in_range(word, min_len=min_len, max_len=max_len)] #removing words that are out of range
     return keywords[:n]
